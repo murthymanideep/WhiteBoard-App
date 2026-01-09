@@ -27,6 +27,10 @@ const Board=()=>{
             const line=generator.line(100,100,200,200);
             roughCanvas.draw(line);
         }
+        if(currentToolItem==="rect"){
+            const rect=generator.rectangle(100,100,200,200);
+            roughCanvas.draw(rect);
+        }
         
     },[currentToolItem]);
 

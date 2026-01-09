@@ -9,3 +9,7 @@ export const toolButtonActive=
 
 export const toolButtonInactive=
     "bg-gray-100 hover:bg-gray-200";
+
+export const getToolButtonClass = (activeTool, tool) =>{
+    return toolButtonBase+" "+(activeTool===tool?toolButtonActive:toolButtonInactive);
+}

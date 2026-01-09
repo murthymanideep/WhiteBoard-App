@@ -1,6 +1,8 @@
 import Board from "./components/Board"
 import ReactDOM from "react-dom/client"
 import ToolBar from "./components/ToolBar";
+import { Provider } from "react-redux";
+import appStore from "./store/appStore";
 
 const AppLayout=()=>{
     return (
@@ -14,4 +16,8 @@ const AppLayout=()=>{
 
 
 const root=ReactDOM.createRoot(document.getElementById("root"));
-root.render(<AppLayout/>);
+root.render(
+    <Provider store={appStore}>
+        <AppLayout/>
+    </Provider>
+);

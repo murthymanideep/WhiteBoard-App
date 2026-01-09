@@ -1,29 +1,26 @@
 import { useState } from "react";
 import { RiRectangleLine } from "react-icons/ri";
 import { FaSlash } from "react-icons/fa";
-import {
-    toolbarContainer,
-    toolButtonBase,
-    toolButtonActive,
-    toolButtonInactive
-} from "../utils/toolbarStyles";
+import { toolbarContainer,getToolButtonClass } from "../utils/toolbarStyles";
+import { useDispatch } from "react-redux";
+import { setActiveToolItem } from "../store/boardSlice";
+import { useSelector } from "react-redux";
 
 const ToolBar=()=>{
-    const [active,setActive]=useState("rect");
-    const rectBtnClass=
-        toolButtonBase+" "+
-        (active==="rect" ? toolButtonActive : toolButtonInactive);
-
-    const lineBtnClass=
-        toolButtonBase+" "+
-        (active==="line" ? toolButtonActive : toolButtonInactive);
+    const dispatch=useDispatch();
+    const changeActiveToolItem=(ToolItem)=>{
+        dispatch(setActiveToolItem(ToolItem));
+    }
+    const activeTool=useSelector((store)=>{
+        return store.board.activeToolItem;
+    });
 
     return (
         <div className={toolbarContainer}>
-            <button className={rectBtnClass} onClick={()=>setActive("rect")}>
+            <button className={getToolButtonClass(activeTool,"rect")} onClick={()=>changeActiveToolItem("rect")}>
                 <RiRectangleLine size={18}/>
             </button>
-            <button className={lineBtnClass} onClick={()=>setActive("line")}>
+            <button className={getToolButtonClass(activeTool,"line")} onClick={()=>changeActiveToolItem("line")}>
                 <FaSlash size={16}/>
             </button>
         </div>

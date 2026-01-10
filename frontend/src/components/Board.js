@@ -39,6 +39,15 @@ const Board=()=>{
             else if(element.type==="ellipse"){
                 roughCanvas.draw(generator.ellipse(element.cx,element.cy,(element.rx)*2,(element.ry)*2,{ seed: element.seed }));
             }
+            else if(element.type=="brush"){
+                for(let i=1;i<element.points.length;i++){
+                    roughCanvas.draw(generator.line(element.points[i-1].x,
+                        element.points[i-1].y,
+                        element.points[i].x,
+                        element.points[i].y,
+                        { seed: element.seed }));      
+                }
+            }
         });
 
         //For preview
@@ -51,6 +60,14 @@ const Board=()=>{
             }
             else if(activeTool==="ellipse"){
                 roughCanvas.draw(generator.ellipse(preview.cx,preview.cy,(preview.rx)*2,(preview.ry)*2));
+            }
+            else if(activeTool==="brush"){
+                for(let i=1;i<preview.points.length;i++){
+                    roughCanvas.draw(generator.line(preview.points[i-1].x,
+                        preview.points[i-1].y,
+                        preview.points[i].x,
+                        preview.points[i].y));      
+                }
             }
         }
     },[boardElements,preview]);

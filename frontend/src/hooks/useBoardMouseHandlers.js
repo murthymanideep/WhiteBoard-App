@@ -19,11 +19,19 @@ const useBoardMouseHandlers=()=>{
             eraseAtPoint(event.clientX,event.clientY);
             return;
         }
-        if(currentToolItem!=="line" && currentToolItem!=="rect" &&currentToolItem!=="ellipse"){
+        const notOk=(currentToolItem!=="line" && currentToolItem!=="rect" && currentToolItem!=="ellipse"
+            && currentToolItem!=="brush"
+        );
+        if(notOk){
             return;
         }
         setIsDrawing(true);
         setStartPoint({x:event.clientX,y:event.clientY});
+        if(currentToolItem==="brush"){
+            setPreview({
+                points:[{ x:event.clientX,y:event.clientY }]
+            });
+        }
     }
 
     //Handler for Mousemove 
@@ -44,6 +52,16 @@ const useBoardMouseHandlers=()=>{
         else if(currentToolItem==="ellipse"){
             setPreview({cx:(a1+a2)/2, cy:(b1+b2)/2, rx:Math.abs(a2-a1)/2, ry:Math.abs(b2-b1)/2});
         }
+        else if(currentToolItem==="brush"){
+            setPreview((oldPreview)=>{
+                if(!oldPreview){
+                    return { points:[{ x:a2,y:b2 }] };
+                }
+                return{
+                    points:[...oldPreview.points,{x:a2,y:b2}]
+                }
+            })
+        }
     }
 
     //Hnadler for Mouseup
@@ -55,7 +73,7 @@ const useBoardMouseHandlers=()=>{
             id: Date.now(),
             seed: Date.now(),
             type: currentToolItem,
-            ...preview
+            ...(currentToolItem==="brush"?{ points: preview.points }:preview)
         }));
 
         setIsDrawing(false);

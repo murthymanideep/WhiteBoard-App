@@ -53,6 +53,18 @@ const isPointInsideEllipse=(x,y,ellipse)=>{
     return ((dx*dx)/(ellipse.rx*ellipse.rx)+(dy*dy)/(ellipse.ry*ellipse.ry))<=1;
 }
 
+const isPointNearBrush=(x,y,brushElement)=>{
+    for(let i=1;i<brushElement.points.length;i++){
+        const p1=brushElement.points[i-1];
+        const p2=brushElement.points[i];
+
+        if(isPointNearLine(x,y,{x1:p1.x,y1:p1.y,x2:p2.x,y2:p2.y})){
+            return true;
+        }
+    }
+    return false;
+}
+
 const useErase=()=>{
     const dispatch=useDispatch();
     const boardElements=useSelector(state=>state.board.boardElements);
@@ -73,6 +85,9 @@ const useErase=()=>{
                 }
                 if(element.type==="ellipse"){
                     return isPointInsideEllipse(x,y,element);
+                }
+                if(element.type==="brush"){
+                    return isPointNearBrush(x,y,element);
                 }
                 return false;
             });

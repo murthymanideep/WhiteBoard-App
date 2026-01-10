@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { RiRectangleLine } from "react-icons/ri";
 import { FaSlash } from "react-icons/fa";
-import { CiEraser } from "react-icons/ci";
+import { LuEraser } from "react-icons/lu";
+import { IoEllipseOutline } from "react-icons/io5";
+import { FaPaintBrush } from "react-icons/fa";
 import { toolbarContainer,getToolButtonClass } from "../utils/toolbarStyles";
 import { useDispatch } from "react-redux";
 import { setActiveToolItem} from "../store/boardSlice";
@@ -19,14 +21,20 @@ const ToolBar=()=>{
 
     return (
         <div className={toolbarContainer}>
+            <button className={getToolButtonClass(activeTool,"brush")} onClick={()=>changeActiveToolItem("brush")}>
+                <FaPaintBrush size={18}/>
+            </button>
             <button className={getToolButtonClass(activeTool,"rect")} onClick={()=>changeActiveToolItem("rect")}>
                 <RiRectangleLine size={18}/>
             </button>
             <button className={getToolButtonClass(activeTool,"line")} onClick={()=>changeActiveToolItem("line")}>
                 <FaSlash size={16}/>
             </button>
+            <button className={getToolButtonClass(activeTool,"circle")} onClick={()=>changeActiveToolItem("circle")}>
+                <IoEllipseOutline size={20}/>
+            </button>
             <button className={getToolButtonClass(activeTool,"erase")} onClick={()=>changeActiveToolItem("erase")}>
-                <CiEraser size={16}/>
+                <LuEraser size={18}/>
             </button>
         </div>
     );

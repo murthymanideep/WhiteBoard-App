@@ -1,59 +1,14 @@
 import { useEffect,useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import rough from "roughjs/bin/rough";
-import { useState } from "react";
-import { addBoardElement } from "../store/boardSlice";
-import useErase from "../hooks/useErase";
+import useBoardMouseHandlers from "../hooks/useBoardMouseHandlers";
 
 const Board=()=>{
-    const dispatch=useDispatch();
-    const {eraseAtPoint}=useErase();
-    const currentToolItem=useSelector((store)=>{
-        return store.board.activeToolItem;
-    })
-
     const canvasRef=useRef(null);
     const boardElements=useSelector((store)=>{
         return store.board.boardElements;
     })
-
-    const [isDrawing,setIsDrawing]=useState(false);
-    const [startPoint,setStartPoint]=useState(null);
-    const [preview,setPreview]=useState(null);
-    const onMouseDown=(event)=>{
-        if(currentToolItem==="erase"){
-            eraseAtPoint(event.clientX,event.clientY);
-            return;
-        }
-        if(currentToolItem!=="line"){
-            return;
-        }
-        setIsDrawing(true);
-        setStartPoint({x:event.clientX,y:event.clientY});
-    }
-
-    const onMouseMove=(event)=>{
-        if(!isDrawing){
-            return;
-        }
-
-        setPreview({x1:startPoint.x,y1:startPoint.y,x2:event.clientX,y2:event.clientY});
-    };
-
-    const onMouseUp=()=>{
-        if(!isDrawing || !preview) return;
-
-        dispatch(addBoardElement({
-            id:Date.now(),
-            type:"line",
-            ...preview
-        }));
-
-        setIsDrawing(false);
-        setPreview(null);
-        setStartPoint(null);
-    };
-
+    const {preview,onMouseDown,onMouseMove,onMouseUp}=useBoardMouseHandlers();
 
     useEffect(()=>{
         const canvas=canvasRef.current;

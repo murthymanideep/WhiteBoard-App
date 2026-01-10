@@ -3,14 +3,20 @@ import { RiRectangleLine } from "react-icons/ri";
 import { FaSlash } from "react-icons/fa";
 import { toolbarContainer,getToolButtonClass } from "../utils/toolbarStyles";
 import { useDispatch } from "react-redux";
-import { setActiveToolItem } from "../store/boardSlice";
+import { setActiveToolItem,addBoardElement } from "../store/boardSlice";
 import { useSelector } from "react-redux";
+import createElement from "../utils/createElement";
 
 const ToolBar=()=>{
     const dispatch=useDispatch();
+    
     const changeActiveToolItem=(ToolItem)=>{
         dispatch(setActiveToolItem(ToolItem));
+
+        const element=createElement(ToolItem);
+        dispatch(addBoardElement(element));
     }
+
     const activeTool=useSelector((store)=>{
         return store.board.activeToolItem;
     });

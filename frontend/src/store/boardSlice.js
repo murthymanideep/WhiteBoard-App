@@ -11,7 +11,7 @@ const boardSlice=createSlice({
             state.activeToolItem=action.payload;
         },
         addBoardElement : (state,action)=>{
-            state.push(action.payload);
+            state.boardElements.push(action.payload);
         }
     }
 });

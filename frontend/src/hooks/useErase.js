@@ -38,6 +38,15 @@ const isPointNearLine=(pointX,pointY,line)=>{
     return Math.sqrt(distanceX*distanceX+distanceY*distanceY)<HIT_THRESHOLD;
 };
 
+const isPointInsideRect=(x,y,rect)=>{
+    return(
+        x>=rect.x &&
+        x<=rect.x+rect.width &&
+        y>=rect.y &&
+        y<=rect.y+rect.height
+    );
+};
+
 const useErase=()=>{
     const dispatch=useDispatch();
     const boardElements=useSelector(state=>state.board.boardElements);
@@ -52,6 +61,9 @@ const useErase=()=>{
                 }
                 if(element.type==="line"){
                     return isPointNearLine(x,y,element);
+                }
+                if(element.type=="rect"){
+                    return isPointInsideRect(x,y,element);
                 }
                 return false;
             });

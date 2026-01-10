@@ -19,7 +19,7 @@ const useBoardMouseHandlers=()=>{
             eraseAtPoint(event.clientX,event.clientY);
             return;
         }
-        if(currentToolItem!=="line" && currentToolItem!=="rect"){
+        if(currentToolItem!=="line" && currentToolItem!=="rect" &&currentToolItem!=="ellipse"){
             return;
         }
         setIsDrawing(true);
@@ -31,16 +31,18 @@ const useBoardMouseHandlers=()=>{
         if(!isDrawing){
             return;
         }
-
-        if(currentToolItem=="line"){
-            setPreview({x1:startPoint.x,y1:startPoint.y,x2:event.clientX,y2:event.clientY});
+        const a1=startPoint.x;
+        const b1=startPoint.y;
+        const a2=event.clientX;
+        const b2=event.clientY;
+        if(currentToolItem==="line"){
+            setPreview({x1:a1,y1:b1,x2:a2,y2:b2});
         }
-        else if(currentToolItem=="rect"){
-            const x1=startPoint.x;
-            const y1=startPoint.y;
-            const x2=event.clientX;
-            const y2=event.clientY;
-            setPreview({x: Math.min(x1,x2),y: Math.min(y1,y2),width: Math.abs(x2-x1),height: Math.abs(y2-y1)});
+        else if(currentToolItem==="rect"){
+            setPreview({x: Math.min(a1,a2), y: Math.min(b1,b2), width:Math.abs(a2-a1), height:Math.abs(b2-b1)});
+        }
+        else if(currentToolItem==="ellipse"){
+            setPreview({cx:(a1+a2)/2, cy:(b1+b2)/2, rx:Math.abs(a2-a1)/2, ry:Math.abs(b2-b1)/2});
         }
     }
 
@@ -49,20 +51,12 @@ const useBoardMouseHandlers=()=>{
         if(!isDrawing || !preview){
             return;
         }
-        if(currentToolItem=="line"){
-            dispatch(addBoardElement({
-                id:Date.now(),
-                type:"line",
-                ...preview
-            }));
-        }
-        else if(currentToolItem=="rect"){
-            dispatch(addBoardElement({
-                id:Date.now(),
-                type:"rect",
-                ...preview
-            }));
-        }
+        dispatch(addBoardElement({
+            id: Date.now(),
+            seed: Date.now(),
+            type: currentToolItem,
+            ...preview
+        }));
 
         setIsDrawing(false);
         setPreview(null);

@@ -30,7 +30,7 @@ const ToolBar=()=>{
             <button className={getToolButtonClass(activeTool,"line")} onClick={()=>changeActiveToolItem("line")}>
                 <FaSlash size={16}/>
             </button>
-            <button className={getToolButtonClass(activeTool,"circle")} onClick={()=>changeActiveToolItem("circle")}>
+            <button className={getToolButtonClass(activeTool,"ellipse")} onClick={()=>changeActiveToolItem("ellipse")}>
                 <IoEllipseOutline size={20}/>
             </button>
             <button className={getToolButtonClass(activeTool,"erase")} onClick={()=>changeActiveToolItem("erase")}>

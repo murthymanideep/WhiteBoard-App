@@ -47,6 +47,12 @@ const isPointInsideRect=(x,y,rect)=>{
     );
 };
 
+const isPointInsideEllipse=(x,y,ellipse)=>{
+    const dx=x-ellipse.cx;
+    const dy=y-ellipse.cy;
+    return ((dx*dx)/(ellipse.rx*ellipse.rx)+(dy*dy)/(ellipse.ry*ellipse.ry))<=1;
+}
+
 const useErase=()=>{
     const dispatch=useDispatch();
     const boardElements=useSelector(state=>state.board.boardElements);
@@ -62,8 +68,11 @@ const useErase=()=>{
                 if(element.type==="line"){
                     return isPointNearLine(x,y,element);
                 }
-                if(element.type=="rect"){
+                if(element.type==="rect"){
                     return isPointInsideRect(x,y,element);
+                }
+                if(element.type==="ellipse"){
+                    return isPointInsideEllipse(x,y,element);
                 }
                 return false;
             });

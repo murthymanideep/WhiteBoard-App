@@ -31,10 +31,13 @@ const Board=()=>{
                 return;
             }
             if(element.type==="line"){
-                roughCanvas.draw(generator.line(element.x1,element.y1,element.x2,element.y2));
+                roughCanvas.draw(generator.line(element.x1,element.y1,element.x2,element.y2,{ seed: element.seed }));
             }
             else if(element.type==="rect"){
-                roughCanvas.draw(generator.rectangle(element.x,element.y,element.width,element.height));
+                roughCanvas.draw(generator.rectangle(element.x,element.y,element.width,element.height,{ seed: element.seed }));
+            }
+            else if(element.type==="ellipse"){
+                roughCanvas.draw(generator.ellipse(element.cx,element.cy,(element.rx)*2,(element.ry)*2,{ seed: element.seed }));
             }
         });
 
@@ -45,6 +48,9 @@ const Board=()=>{
             }
             else if(activeTool==="rect"){
                 roughCanvas.draw(generator.rectangle(preview.x,preview.y,preview.width,preview.height));
+            }
+            else if(activeTool==="ellipse"){
+                roughCanvas.draw(generator.ellipse(preview.cx,preview.cy,(preview.rx)*2,(preview.ry)*2));
             }
         }
     },[boardElements,preview]);

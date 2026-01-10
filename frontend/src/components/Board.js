@@ -3,9 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import rough from "roughjs/bin/rough";
 import { useState } from "react";
 import { addBoardElement } from "../store/boardSlice";
+import useErase from "../hooks/useErase";
 
 const Board=()=>{
     const dispatch=useDispatch();
+    const {eraseAtPoint}=useErase();
     const currentToolItem=useSelector((store)=>{
         return store.board.activeToolItem;
     })
@@ -19,6 +21,10 @@ const Board=()=>{
     const [startPoint,setStartPoint]=useState(null);
     const [preview,setPreview]=useState(null);
     const onMouseDown=(event)=>{
+        if(currentToolItem==="erase"){
+            eraseAtPoint(event.clientX,event.clientY);
+            return;
+        }
         if(currentToolItem!=="line"){
             return;
         }
@@ -26,29 +32,26 @@ const Board=()=>{
         setStartPoint({x:event.clientX,y:event.clientY});
     }
 
-    const onMouseMove=(e)=>{
+    const onMouseMove=(event)=>{
         if(!isDrawing){
             return;
         }
 
-        setPreview({
-            x1:startPoint.x,
-            y1:startPoint.y,
-            x2:e.clientX,
-            y2:e.clientY
-        });
+        setPreview({x1:startPoint.x,y1:startPoint.y,x2:event.clientX,y2:event.clientY});
     };
 
     const onMouseUp=()=>{
-        if(!isDrawing) return;
+        if(!isDrawing || !preview) return;
 
         dispatch(addBoardElement({
+            id:Date.now(),
             type:"line",
             ...preview
         }));
 
         setIsDrawing(false);
         setPreview(null);
+        setStartPoint(null);
     };
 
 
@@ -65,6 +68,9 @@ const Board=()=>{
         const generator=roughCanvas.generator;
 
         boardElements.forEach((element)=>{
+            if(!element){
+                return;
+            }
             if(element.type==="line"){
                 roughCanvas.draw(generator.line(element.x1,element.y1,element.x2,element.y2));
             }

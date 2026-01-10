@@ -20,6 +20,7 @@ const createElement=(type)=>{
             height:100
         };
     }
+    return null;
 };
 
 export default createElement;

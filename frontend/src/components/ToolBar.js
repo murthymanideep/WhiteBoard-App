@@ -2,9 +2,9 @@ import { useState } from "react";
 import { RiRectangleLine } from "react-icons/ri";
 import { FaSlash } from "react-icons/fa";
 import { LuEraser } from "react-icons/lu";
-import { IoEllipseOutline } from "react-icons/io5";
+import { IoEllipseOutline,IoText } from "react-icons/io5";
 import { FaPaintBrush } from "react-icons/fa";
-import { toolbarContainer,getToolButtonClass } from "../utils/toolbarStyles";
+import { toolbarContainer,getToolButtonClass, toolLabel } from "../utils/toolbarStyles";
 import { useDispatch } from "react-redux";
 import { setActiveToolItem} from "../store/boardSlice";
 import { useSelector } from "react-redux";
@@ -23,18 +23,31 @@ const ToolBar=()=>{
         <div className={toolbarContainer}>
             <button className={getToolButtonClass(activeTool,"brush")} onClick={()=>changeActiveToolItem("brush")}>
                 <FaPaintBrush size={18}/>
+                <span className={toolLabel}>Brush</span>
             </button>
             <button className={getToolButtonClass(activeTool,"rect")} onClick={()=>changeActiveToolItem("rect")}>
                 <RiRectangleLine size={18}/>
+                <span className={toolLabel}>Rectangle</span>
             </button>
             <button className={getToolButtonClass(activeTool,"line")} onClick={()=>changeActiveToolItem("line")}>
                 <FaSlash size={16}/>
+                <span className={toolLabel}>Line</span>
             </button>
             <button className={getToolButtonClass(activeTool,"ellipse")} onClick={()=>changeActiveToolItem("ellipse")}>
                 <IoEllipseOutline size={20}/>
+                <span className={toolLabel}>Ellipse</span>
+            </button>
+            <button className={getToolButtonClass(activeTool,"circle")} onClick={()=>changeActiveToolItem("circle")}>
+                <IoEllipseOutline size={20}/>
+                <span className={toolLabel}>Circle</span>
+            </button>
+            <button className={getToolButtonClass(activeTool,"text-box")} onClick={()=>changeActiveToolItem("text-box")}>
+                <IoText size={20}/>
+                <span className={toolLabel}>Text</span>
             </button>
             <button className={getToolButtonClass(activeTool,"erase")} onClick={()=>changeActiveToolItem("erase")}>
                 <LuEraser size={18}/>
+                <span className={toolLabel}>Eraser</span>
             </button>
         </div>
     );

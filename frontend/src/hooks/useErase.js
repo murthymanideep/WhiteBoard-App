@@ -65,6 +65,12 @@ const isPointNearBrush=(x,y,brushElement)=>{
     return false;
 }
 
+const isPointInsideCicle=(x,y,circle)=>{
+    const dx=x-circle.cx;
+    const dy=y-circle.cy;
+    return (dx*dx+dy*dy)<=(circle.r)*(circle.r);
+}
+
 const useErase=()=>{
     const dispatch=useDispatch();
     const boardElements=useSelector(state=>state.board.boardElements);
@@ -88,6 +94,9 @@ const useErase=()=>{
                 }
                 if(element.type==="brush"){
                     return isPointNearBrush(x,y,element);
+                }
+                if(element.type==="circle"){
+                    return isPointInsideCicle(x,y,element);
                 }
                 return false;
             });

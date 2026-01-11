@@ -20,7 +20,7 @@ const useBoardMouseHandlers=()=>{
             return;
         }
         const notOk=(currentToolItem!=="line" && currentToolItem!=="rect" && currentToolItem!=="ellipse"
-            && currentToolItem!=="brush"
+            && currentToolItem!=="brush" && currentToolItem!=="circle" && currentToolItem!=="text-box"
         );
         if(notOk){
             return;
@@ -50,17 +50,23 @@ const useBoardMouseHandlers=()=>{
             setPreview({x: Math.min(a1,a2), y: Math.min(b1,b2), width:Math.abs(a2-a1), height:Math.abs(b2-b1)});
         }
         else if(currentToolItem==="ellipse"){
-            setPreview({cx:(a1+a2)/2, cy:(b1+b2)/2, rx:Math.abs(a2-a1)/2, ry:Math.abs(b2-b1)/2});
+            setPreview({cx:a1, cy:b1, rx:Math.abs(a2-a1), ry:Math.abs(b2-b1)});
         }
         else if(currentToolItem==="brush"){
             setPreview((oldPreview)=>{
-                if(!oldPreview){
+                if(!oldPreview || !oldPreview.points){
                     return { points:[{ x:a2,y:b2 }] };
                 }
                 return{
                     points:[...oldPreview.points,{x:a2,y:b2}]
                 }
             })
+        }
+        else if(currentToolItem==="circle"){
+            setPreview({cx:a1, cy:b1, r:Math.sqrt((a2-a1)*(a2-a1)+(b2-b1)*(b2-b1))});
+        }
+        else if(currentToolItem==="text-box"){
+
         }
     }
 

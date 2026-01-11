@@ -48,6 +48,9 @@ const Board=()=>{
                         { seed: element.seed }));      
                 }
             }
+            else if(element.type=="circle"){
+                roughCanvas.draw(generator.circle(element.cx,element.cy,element.r,{seed : element.seed}))
+            }
         });
 
         //For preview
@@ -62,6 +65,9 @@ const Board=()=>{
                 roughCanvas.draw(generator.ellipse(preview.cx,preview.cy,(preview.rx)*2,(preview.ry)*2));
             }
             else if(activeTool==="brush"){
+                if(!preview.points){
+                    return;
+                }
                 for(let i=1;i<preview.points.length;i++){
                     roughCanvas.draw(generator.line(preview.points[i-1].x,
                         preview.points[i-1].y,
@@ -69,8 +75,11 @@ const Board=()=>{
                         preview.points[i].y));      
                 }
             }
+            else if(activeTool==="circle"){
+                roughCanvas.draw(generator.circle(preview.cx,preview.cy,preview.r));
+            }
         }
-    },[boardElements,preview]);
+    },[boardElements,preview,activeTool]);
 
     return (
         <canvas ref={canvasRef} className="block" onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp}/>

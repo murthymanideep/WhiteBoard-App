@@ -6,7 +6,7 @@ import useBoardMouseHandlers from "../hooks/useBoardMouseHandlers";
 const Board=()=>{
     const canvasRef=useRef(null);
     const boardElements=useSelector((store)=>{
-        return store.board.boardElements;
+        return store.board.history.present.boardElements;
     })
     const activeTool=useSelector((store)=>{
         return store.board.activeToolItem;

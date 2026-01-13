@@ -1,5 +1,7 @@
 import { useDispatch,useSelector } from "react-redux";
 import { removeBoardElement } from "../store/boardSlice";
+import { useRef } from "react";
+import { batchRemoveBoardElements } from "../store/boardSlice";
 
 const HIT_THRESHOLD=6;
 
@@ -65,18 +67,23 @@ const isPointNearBrush=(x,y,brushElement)=>{
     return false;
 }
 
-const isPointInsideCicle=(x,y,circle)=>{
+const isPointInsideCircle=(x,y,circle)=>{
     const dx=x-circle.cx;
     const dy=y-circle.cy;
-    return (dx*dx+dy*dy)<=(circle.r)*(circle.r);
+    return (dx*dx+dy*dy)<=(circle.r/2)*(circle.r/2);
 }
 
 const useErase=()=>{
     const dispatch=useDispatch();
-    const boardElements=useSelector(state=>state.board.boardElements);
+    const boardElements=useSelector(state=>state.board.history.present.boardElements);
+    const erasedIdsRef=useRef(new Set());
+    const hasErasedRef = useRef(false); 
 
     const eraseAtPoint=(x,y)=>{
-        const topMostElement=boardElements
+        if(hasErasedRef.current){
+            return;
+        }
+        const target=boardElements
             .slice()
             .reverse()
             .find(element=>{
@@ -96,16 +103,33 @@ const useErase=()=>{
                     return isPointNearBrush(x,y,element);
                 }
                 if(element.type==="circle"){
-                    return isPointInsideCicle(x,y,element);
+                    return isPointInsideCircle(x,y,element);
                 }
                 return false;
             });
-        if(topMostElement){
-            dispatch(removeBoardElement(topMostElement.id));
+        if(target){
+            erasedIdsRef.current.add(target.id);
+            hasErasedRef.current=true;
         }
     };
 
-    return { eraseAtPoint };
+    const commitErase=()=>{
+        if(erasedIdsRef.current.size===0){
+            return;
+        }
+        dispatch(
+            batchRemoveBoardElements([...erasedIdsRef.current])
+        );
+        erasedIdsRef.current.clear();
+        hasErasedRef.current = false;
+    };
+
+    const cancelErase=()=>{
+        erasedIdsRef.current.clear();
+        hasErasedRef.current = false;
+    };
+
+    return { eraseAtPoint,commitErase,cancelErase };
 };
 
 export default useErase;

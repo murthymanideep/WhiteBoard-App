@@ -7,7 +7,6 @@ import appStore from "./store/appStore";
 const AppLayout=()=>{
     return (
         <div className="relative w-screen h-screen overflow-hidden">
-            <ToolBar/>
             <Board/>
         </div>
     );

@@ -2,6 +2,7 @@ import { useEffect,useRef } from "react";
 import { useSelector } from "react-redux";
 import rough from "roughjs/bin/rough";
 import useBoardMouseHandlers from "../hooks/useBoardMouseHandlers";
+import ToolBar from "./ToolBar";
 
 const Board=()=>{
     const canvasRef=useRef(null);
@@ -13,14 +14,38 @@ const Board=()=>{
     })
     const {preview,onMouseDown,onMouseMove,onMouseUp}=useBoardMouseHandlers();
 
+    const downloadImage=()=>{
+        const canvas=canvasRef.current;
+        if(!canvas){
+            return;
+        }
+        const link=document.createElement("a");
+        link.href=canvas.toDataURL("image/png");
+        link.download="drawing.png";
+        link.click();
+    };
+
     useEffect(()=>{
         const canvas=canvasRef.current;
+        if(!canvas){
+            return;
+        }
         const ctx=canvas.getContext("2d");
+        canvas.style.width="100vw";
+        canvas.style.height="100vh";
 
-        canvas.width=window.innerWidth;
-        canvas.height=window.innerHeight;
+        const dpr=window.devicePixelRatio || 1;
+        const width=window.innerWidth;
+        const height=window.innerHeight;
 
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+        canvas.width=width*dpr;
+        canvas.height=height*dpr;
+        ctx.setTransform(1,0,0,1,0,0);
+        ctx.scale(dpr,dpr);
+
+        ctx.clearRect(0,0,width,height);
+        ctx.fillStyle="#ffffff";
+        ctx.fillRect(0,0,width,height);
 
         const roughCanvas=rough.canvas(canvas);
         const generator=roughCanvas.generator;
@@ -82,7 +107,10 @@ const Board=()=>{
     },[boardElements,preview,activeTool]);
 
     return (
-        <canvas ref={canvasRef} className="block" onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp}/>
+        <>
+            <ToolBar Download={downloadImage}/>
+            <canvas ref={canvasRef} className="block" onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp}/>
+        </>
     );
 };
 

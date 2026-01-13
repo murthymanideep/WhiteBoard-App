@@ -12,7 +12,7 @@ import { setActiveToolItem, undo} from "../store/boardSlice";
 import { useSelector } from "react-redux";
 import { undo, redo } from "../store/boardSlice";
 
-const ToolBar=()=>{
+const ToolBar=({Download})=>{
     const dispatch=useDispatch();
     const changeActiveToolItem=(ToolItem)=>{
         dispatch(setActiveToolItem(ToolItem));
@@ -48,19 +48,19 @@ const ToolBar=()=>{
                 <IoText size={20}/>
                 <span className={toolLabel}>Text</span>
             </button>
-            <button className={getToolButtonClass(activeTool,"undo")} onClick={()=>dispatch(undo())}>
-                <LuUndo size={18}/>
-                <span className={toolLabel}>Undo</span>
-            </button>
-            <button className={getToolButtonClass(activeTool,"redo")} onClick={()=>dispatch(redo())}>
-                <LuRedo size={18}/>
-                <span className={toolLabel}>Redo</span>
-            </button>
             <button className={getToolButtonClass(activeTool,"eraser")} onClick={()=>changeActiveToolItem("eraser")}>
                 <LuEraser size={18}/>
                 <span className={toolLabel}>Eraser</span>
             </button>
-            <button className={getToolButtonClass(activeTool,"downlaod")}>
+            <button onClick={()=>dispatch(undo())}>
+                <LuUndo size={18}/>
+                <span className={toolLabel}>Undo</span>
+            </button>
+            <button onClick={()=>dispatch(redo())}>
+                <LuRedo size={18}/>
+                <span className={toolLabel}>Redo</span>
+            </button>
+            <button onClick={Download}>
                 <GoDownload size={18}/>
                 <span className={toolLabel}>Downlaod</span>
             </button>

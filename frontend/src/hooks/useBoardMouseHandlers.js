@@ -1,31 +1,36 @@
-import { useState } from "react"
-import { addBoardElement,removeBoardElement } from "../store/boardSlice";
+import { useState } from "react";
+import { addBoardElement } from "../store/boardSlice";
 import { useDispatch, useSelector } from "react-redux";
 import useErase from "./useErase";
 
 const useBoardMouseHandlers=()=>{
     const dispatch=useDispatch();
-    const {eraseAtPoint,commitErase}=useErase();
+    const { eraseAtPoint,commitErase }=useErase();
+
     const currentToolItem=useSelector((store)=>{
         return store.board.activeToolItem;
-    })
+    });
+
     const [isDrawing,setIsDrawing]=useState(false);
+    const [isErasing,setIsErasing]=useState(false);
     const [startPoint,setStartPoint]=useState(null);
     const [preview,setPreview]=useState(null);
-    const [textInput,setTextInput]=useState(null);
 
-    //Handler for Mousedown
+    // Handler for MouseDown
     const onMouseDown=(event)=>{
         if(currentToolItem==="eraser"){
+            setIsErasing(true);
             eraseAtPoint(event.clientX,event.clientY);
             return;
         }
+
         const notOk=(currentToolItem!=="line" && currentToolItem!=="rect" && currentToolItem!=="ellipse"
             && currentToolItem!=="brush" && currentToolItem!=="circle" && currentToolItem!=="text-box"
         );
         if(notOk){
             return;
         }
+
         setIsDrawing(true);
         setStartPoint({x:event.clientX,y:event.clientY});
         if(currentToolItem==="brush"){
@@ -33,19 +38,21 @@ const useBoardMouseHandlers=()=>{
                 points:[{ x:event.clientX,y:event.clientY }]
             });
         }
-        if(currentToolItem==="text-box"){
-            setTextInput({x:event.clientX,y:event.clientY,value:""});
-        }
-    }
+    };
 
-    //Handler for Mousemove 
+    //Handler for Mousemove
     const onMouseMove=(event)=>{
-         if(currentToolItem==="eraser"){
-        eraseAtPoint(event.clientX,event.clientY);
-    }
-        if(!isDrawing){
+        if(currentToolItem==="eraser"){
+            if(!isErasing){
+                return;
+            }
+            eraseAtPoint(event.clientX,event.clientY);
             return;
         }
+        if(!isDrawing || !startPoint){
+            return;
+        }
+
         const a1=startPoint.x;
         const b1=startPoint.y;
         const a2=event.clientX;
@@ -72,13 +79,18 @@ const useBoardMouseHandlers=()=>{
         else if(currentToolItem==="circle"){
             setPreview({cx:a1, cy:b1, r:Math.sqrt((a2-a1)*(a2-a1)+(b2-b1)*(b2-b1))});
         }
-    }
+    };
 
-    //Hnadler for Mouseup
+    //Handler for Mouseup
     const onMouseUp=()=>{
         if(currentToolItem==="eraser"){
-        commitErase();
-    }
+            if(isErasing){
+                commitErase();
+                setIsErasing(false);
+            }
+            return;
+        }
+
         if(!isDrawing || !preview){
             return;
         }
@@ -86,14 +98,14 @@ const useBoardMouseHandlers=()=>{
             id: Date.now(),
             seed: Date.now(),
             type: currentToolItem,
-            ...(currentToolItem==="brush"?{ points: preview.points }:preview)
+            ...(currentToolItem==="brush"?{ points:preview.points}: preview
+            )
         }));
 
         setIsDrawing(false);
         setPreview(null);
         setStartPoint(null);
-    }
-
+    };
 
     return {
         preview,
@@ -101,6 +113,6 @@ const useBoardMouseHandlers=()=>{
         onMouseMove,
         onMouseUp
     };
-}
+};
 
 export default useBoardMouseHandlers;

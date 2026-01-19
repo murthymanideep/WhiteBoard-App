@@ -7,8 +7,8 @@ const useBoardMouseHandlers=()=>{
     const dispatch=useDispatch();
     const { eraseAtPoint,commitErase }=useErase();
 
-    const currentToolItem=useSelector((store)=>{
-        return store.board.activeToolItem;
+    const {activeToolItem: currentToolItem,strokeColor,fillColor,strokeWidth}=useSelector((store)=>{
+        return store.board;
     });
 
     const [isDrawing,setIsDrawing]=useState(false);
@@ -99,6 +99,10 @@ const useBoardMouseHandlers=()=>{
             seed: Date.now(),
             type: currentToolItem,
             ...(currentToolItem==="brush"?{ points:preview.points}: preview
+            ),
+            strokeColor,
+            strokeWidth,
+            ...(currentToolItem!=="line" && currentToolItem!=="brush"? { fillColor }:{}
             )
         }));
 

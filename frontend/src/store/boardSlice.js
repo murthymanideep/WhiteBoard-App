@@ -1,15 +1,30 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState={
-    activeToolItem: "",
-    history:{
-        past: [],
-        present: {
-            boardElements : []
-        },
-        future: []
+const savedState=()=>{
+    try{
+        const stateData=localStorage.getItem("boardState");
+        return JSON.parse(stateData);
+    }
+    catch{
+        return null;
     }
 }
+
+let initialState;
+    initialState={
+        activeToolItem:"",
+        strokeColor:"black",
+        fillColor:"transparent",
+        strokeWidth:2,
+        history:{
+            past:[],
+            present:{ 
+                boardElements:[] 
+            },
+            future:[]
+        }
+    };
+
 const boardSlice=createSlice({
     name: "board",
     initialState,
@@ -61,12 +76,23 @@ const boardSlice=createSlice({
             }
             state.history.past.push(state.history.present);
             state.history.present=state.history.future.shift();
+        },
+        setStrokeColor: (state,action)=>{
+            state.strokeColor=action.payload;
+        },
+        setFillColor: (state,action)=>{
+            state.fillColor=action.payload;
+        },
+        setStrokeWidth: (state,action)=>{
+            state.strokeWidth=action.payload;
         }
     }
 });
 
 const boardReducer=boardSlice.reducer;
 
-export const {setActiveToolItem,addBoardElement,removeBoardElement,undo,redo,batchRemoveBoardElements}=boardSlice.actions;
+export const {setActiveToolItem,addBoardElement,removeBoardElement,undo,redo,batchRemoveBoardElements
+    ,setFillColor,setStrokeColor,setStrokeWidth
+}=boardSlice.actions;
 
 export default boardReducer;

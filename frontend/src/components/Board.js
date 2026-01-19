@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import rough from "roughjs/bin/rough";
 import useBoardMouseHandlers from "../hooks/useBoardMouseHandlers";
 import ToolBar from "./ToolBar";
+import ToolBox from "./ToolBox";
 
 const Board=()=>{
     const canvasRef=useRef(null);
@@ -108,8 +109,10 @@ const Board=()=>{
 
     return (
         <>
-            <ToolBar Download={downloadImage}/>
+            <ToolBar Download={downloadImage}/> 
+            <ToolBox/>           
             <canvas ref={canvasRef} className="block" onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp}/>
+            
         </>
     );
 };

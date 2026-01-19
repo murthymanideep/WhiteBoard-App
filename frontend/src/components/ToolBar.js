@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { setActiveToolItem, undo} from "../store/boardSlice";
 import { useSelector } from "react-redux";
 import { undo, redo } from "../store/boardSlice";
+import { RiGeminiFill } from "react-icons/ri";
 
 const ToolBar=({Download})=>{
     const dispatch=useDispatch();
@@ -63,6 +64,10 @@ const ToolBar=({Download})=>{
             <button onClick={Download}>
                 <GoDownload size={18}/>
                 <span className={toolLabel}>Downlaod</span>
+            </button>
+            <button className={getToolButtonClass(activeTool,"ai")} onClick={()=>changeActiveToolItem("ai")}>
+                <RiGeminiFill size={18}/>
+                <span className={toolLabel}>AI</span>
             </button>
         </div>
     );

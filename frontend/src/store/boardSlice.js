@@ -1,29 +1,41 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const MAX_PAST=50;
+const MAX_FUTURE=50;
+
 const savedState=()=>{
     try{
-        const stateData=localStorage.getItem("boardState");
-        return JSON.parse(stateData);
+        const rawStateData=localStorage.getItem("boardState");
+        const state=JSON.parse(rawStateData);
+        return {
+            ...state,
+            history:{
+                past: state.history?.past?.slice(-MAX_PAST)||[],
+                present: state.history?.present||{boardElements:[]},
+                future: state.history?.future?.slice(0,MAX_FUTURE)||[]
+            }
+        };
     }
     catch{
         return null;
     }
 }
 
-let initialState;
-    initialState={
-        activeToolItem:"",
-        strokeColor:"black",
-        fillColor:"transparent",
-        strokeWidth:2,
-        history:{
-            past:[],
-            present:{ 
-                boardElements:[] 
-            },
-            future:[]
-        }
-    };
+const initialState=savedState()||{
+    activeToolItem:"",
+    strokeColor:"black",
+    fillColor:"transparent",
+    strokeWidth:2,
+    history:{
+        past:[],
+        present:{ boardElements:[] },
+        future:[]
+    }
+};
+
+const Instance=(present)=>({
+    boardElements: [...present.boardElements]
+});
 
 const boardSlice=createSlice({
     name: "board",
@@ -37,7 +49,10 @@ const boardSlice=createSlice({
             if(!element || !element.id || !element.type){
                 return;
             }
-            state.history.past.push(state.history.present);
+            state.history.past.push(Instance(state.history.present));
+            if(state.history.past.length>MAX_PAST){
+                state.history.past.shift();
+            }
             state.history.present={
                 boardElements: [
                     ...state.history.present.boardElements,
@@ -47,7 +62,11 @@ const boardSlice=createSlice({
             state.history.future=[];
         },
         removeBoardElement : (state,action)=>{
-            state.history.past.push(state.history.present);
+            state.history.past.push(Instance(state.history.present));
+            if(state.history.past.length>MAX_PAST){
+                state.history.past.shift();
+            }
+
             state.history.present.boardElements=state.history.present.boardElements.filter((element)=>{ 
                 return element.id!==action.payload
             });
@@ -55,6 +74,11 @@ const boardSlice=createSlice({
         },
         batchRemoveBoardElements:(state,action)=>{
             const ids=action.payload;
+            state.history.past.push(Instance(state.history.present));
+            if(state.history.past.length>MAX_PAST){
+                state.history.past.shift();
+            }
+
             state.history.past.push(state.history.present);
             state.history.present = {
                 boardElements: state.history.present.boardElements.filter((element)=>{
@@ -67,14 +91,25 @@ const boardSlice=createSlice({
             if(state.history.past.length===0){
                 return;
             }
-            state.history.future.unshift(state.history.present);
+            state.history.future.unshift(
+                Instance(state.history.present)
+            );
+            if(state.history.future.length>MAX_FUTURE){
+                state.history.future.pop();
+            }
             state.history.present=state.history.past.pop();
         },
         redo: (state)=>{
             if(state.history.future.length===0){
                 return;
             }
-            state.history.past.push(state.history.present);
+            state.history.past.push(
+                Instance(state.history.present)
+            );
+
+            if(state.history.past.length>MAX_PAST){
+                state.history.past.shift();
+            }
             state.history.present=state.history.future.shift();
         },
         setStrokeColor: (state,action)=>{

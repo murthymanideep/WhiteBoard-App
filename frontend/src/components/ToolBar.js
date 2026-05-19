@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { RiRectangleLine } from "react-icons/ri";
 import { FaSlash } from "react-icons/fa";
 import { LuEraser } from "react-icons/lu";
@@ -8,9 +7,8 @@ import { LuUndo,LuRedo  } from "react-icons/lu";
 import { GoDownload } from "react-icons/go";
 import { toolbarContainer,getToolButtonClass, toolLabel } from "../utils/toolbarStyles";
 import { useDispatch } from "react-redux";
-import { setActiveToolItem, undo} from "../store/boardSlice";
 import { useSelector } from "react-redux";
-import { undo, redo } from "../store/boardSlice";
+import { setActiveToolItem,undo,redo } from "../store/boardSlice";
 import { RiGeminiFill } from "react-icons/ri";
 
 const ToolBar=({Download})=>{
@@ -63,7 +61,7 @@ const ToolBar=({Download})=>{
             </button>
             <button onClick={Download}>
                 <GoDownload size={18}/>
-                <span className={toolLabel}>Downlaod</span>
+                <span className={toolLabel}>Download</span>
             </button>
             <button className={getToolButtonClass(activeTool,"ai")} onClick={()=>changeActiveToolItem("ai")}>
                 <RiGeminiFill size={18}/>

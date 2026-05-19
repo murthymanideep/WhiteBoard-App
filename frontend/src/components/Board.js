@@ -1,13 +1,18 @@
-import { useEffect,useRef } from "react";
-import { useSelector } from "react-redux";
+import { useEffect,useRef,useState } from "react";
+import { useDispatch,useSelector } from "react-redux";
 import rough from "roughjs/bin/rough";
 import useBoardMouseHandlers from "../hooks/useBoardMouseHandlers";
 import ToolBar from "./ToolBar";
 import ToolBox from "./ToolBox";
 import { getColorValue } from "../utils/colorClassMap";
+import { addBoardElement } from "../store/boardSlice";
+import { drawTextElement } from "../utils/textHelpers";
+import TextBoxEditor from "./TextBoxEditor";
 
 const Board=()=>{
+    const dispatch=useDispatch();
     const canvasRef=useRef(null);
+    const [textPoint,setTextPoint]=useState(null);
     const boardElements=useSelector((store)=>{
         return store.board.history.present.boardElements;
     });
@@ -15,6 +20,12 @@ const Board=()=>{
         return store.board;
     });
     const {preview,onMouseDown,onMouseMove,onMouseUp}=useBoardMouseHandlers();
+
+    useEffect(()=>{
+        if(activeTool!=="text-box"){
+            setTextPoint(null);
+        }
+    },[activeTool]);
 
     const downloadImage=()=>{
         const canvas=canvasRef.current;
@@ -25,6 +36,34 @@ const Board=()=>{
         link.href=canvas.toDataURL("image/png");
         link.download="drawing.png";
         link.click();
+    };
+
+    const handleMouseDown=(event)=>{
+        if(activeTool==="text-box"){
+            return;
+        }
+
+        onMouseDown(event);
+    };
+
+    const handleCanvasClick=(event)=>{
+        if(activeTool!=="text-box"){
+            return;
+        }
+
+        setTextPoint({ x:event.clientX,y:event.clientY });
+    };
+
+    const addTextElement=(textData)=>{
+        dispatch(addBoardElement({
+            id: Date.now(),
+            seed: Date.now(),
+            type: "text-box",
+            ...textData,
+            strokeColor,
+            strokeWidth
+        }));
+        setTextPoint(null);
     };
 
     useEffect(()=>{
@@ -88,6 +127,9 @@ const Board=()=>{
             else if(element.type=="circle"){
                 roughCanvas.draw(generator.circle(element.cx,element.cy,element.r,{...baseOpts,...fillOpts}))
             }
+            else if(element.type==="text-box"){
+                drawTextElement(ctx,element,getColorValue);
+            }
         });
 
         //For preview
@@ -134,8 +176,24 @@ const Board=()=>{
     return (
         <>
             <ToolBar Download={downloadImage}/> 
-            <ToolBox/>           
-            <canvas ref={canvasRef} className="block" onMouseDown={onMouseDown} onMouseMove={onMouseMove} onMouseUp={onMouseUp}/>
+            <ToolBox/>
+            {textPoint && (
+                <TextBoxEditor
+                    point={textPoint}
+                    strokeColor={strokeColor}
+                    strokeWidth={strokeWidth}
+                    onSubmit={addTextElement}
+                    onCancel={()=>setTextPoint(null)}
+                />
+            )}
+            <canvas
+                ref={canvasRef}
+                className={activeTool==="text-box"?"block cursor-text":"block"}
+                onClick={handleCanvasClick}
+                onMouseDown={handleMouseDown}
+                onMouseMove={onMouseMove}
+                onMouseUp={onMouseUp}
+            />
             
         </>
     );

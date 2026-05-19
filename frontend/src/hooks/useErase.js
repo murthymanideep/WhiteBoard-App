@@ -73,6 +73,18 @@ const isPointInsideCircle=(x,y,circle)=>{
     return (dx*dx+dy*dy)<=(circle.r/2)*(circle.r/2);
 }
 
+const isPointInsideText=(x,y,textElement)=>{
+    const width=textElement.width||160;
+    const height=textElement.height||32;
+
+    return(
+        x>=textElement.x &&
+        x<=textElement.x+width &&
+        y>=textElement.y &&
+        y<=textElement.y+height
+    );
+};
+
 const useErase=()=>{
     const dispatch=useDispatch();
     const boardElements=useSelector(state=>state.board.history.present.boardElements);
@@ -104,6 +116,9 @@ const useErase=()=>{
                 }
                 if(element.type==="circle"){
                     return isPointInsideCircle(x,y,element);
+                }
+                if(element.type==="text-box"){
+                    return isPointInsideText(x,y,element);
                 }
                 return false;
             });

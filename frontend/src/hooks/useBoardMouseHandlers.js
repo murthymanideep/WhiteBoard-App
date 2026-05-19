@@ -25,7 +25,7 @@ const useBoardMouseHandlers=()=>{
         }
 
         const notOk=(currentToolItem!=="line" && currentToolItem!=="rect" && currentToolItem!=="ellipse"
-            && currentToolItem!=="brush" && currentToolItem!=="circle" && currentToolItem!=="text-box"
+            && currentToolItem!=="brush" && currentToolItem!=="circle"
         );
         if(notOk){
             return;

@@ -9,7 +9,7 @@ import { toolbarContainer,getToolButtonClass, toolLabel } from "../utils/toolbar
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { setActiveToolItem,undo,redo } from "../store/boardSlice";
-import { RiGeminiFill } from "react-icons/ri";
+import { RiImageAiFill } from "react-icons/ri";
 
 const ToolBar=({Download})=>{
     const dispatch=useDispatch();
@@ -64,7 +64,7 @@ const ToolBar=({Download})=>{
                 <span className={toolLabel}>Download</span>
             </button>
             <button className={getToolButtonClass(activeTool,"ai")} onClick={()=>changeActiveToolItem("ai")}>
-                <RiGeminiFill size={18}/>
+                <RiImageAiFill size={18}/>
                 <span className={toolLabel}>AI</span>
             </button>
         </div>

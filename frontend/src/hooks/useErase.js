@@ -85,6 +85,15 @@ const isPointInsideText=(x,y,textElement)=>{
     );
 };
 
+const isPointInsideImage=(x,y,imageElement)=>{
+    return(
+        x>=imageElement.x &&
+        x<=imageElement.x+imageElement.width &&
+        y>=imageElement.y &&
+        y<=imageElement.y+imageElement.height
+    );
+};
+
 const useErase=()=>{
     const dispatch=useDispatch();
     const boardElements=useSelector(state=>state.board.history.present.boardElements);
@@ -119,6 +128,9 @@ const useErase=()=>{
                 }
                 if(element.type==="text-box"){
                     return isPointInsideText(x,y,element);
+                }
+                if(element.type==="image"){
+                    return isPointInsideImage(x,y,element);
                 }
                 return false;
             });

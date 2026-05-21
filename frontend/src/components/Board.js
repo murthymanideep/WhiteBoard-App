@@ -5,14 +5,17 @@ import useBoardMouseHandlers from "../hooks/useBoardMouseHandlers";
 import ToolBar from "./ToolBar";
 import ToolBox from "./ToolBox";
 import { getColorValue } from "../utils/colorClassMap";
-import { addBoardElement } from "../store/boardSlice";
+import { addBoardElement,setActiveToolItem } from "../store/boardSlice";
 import { drawTextElement } from "../utils/textHelpers";
 import TextBoxEditor from "./TextBoxEditor";
+import AiPanel from "./AiPanel";
 
 const Board=()=>{
     const dispatch=useDispatch();
     const canvasRef=useRef(null);
+    const imageCacheRef=useRef({});
     const [textPoint,setTextPoint]=useState(null);
+    const [imageVersion,setImageVersion]=useState(0);
     const boardElements=useSelector((store)=>{
         return store.board.history.present.boardElements;
     });
@@ -64,6 +67,28 @@ const Board=()=>{
             strokeWidth
         }));
         setTextPoint(null);
+    };
+
+    const addImageElement=(imageData)=>{
+        const width=Math.min(imageData.width,window.innerWidth-160);
+        const height=width/imageData.ratio;
+
+        dispatch(addBoardElement({
+            id: Date.now(),
+            seed: Date.now(),
+            type: "image",
+            src: imageData.src,
+            x: Math.max(40,(window.innerWidth-width)/2),
+            y: Math.max(110,(window.innerHeight-height)/2),
+            width,
+            height
+        }));
+
+        dispatch(setActiveToolItem("brush"));
+    };
+
+    const closeAiPanel=()=>{
+        dispatch(setActiveToolItem(""));
     };
 
     useEffect(()=>{
@@ -130,6 +155,22 @@ const Board=()=>{
             else if(element.type==="text-box"){
                 drawTextElement(ctx,element,getColorValue);
             }
+            else if(element.type==="image"){
+                let image=imageCacheRef.current[element.src];
+
+                if(!image){
+                    image=new Image();
+                    image.onload=()=>{
+                        setImageVersion(version=>version+1);
+                    };
+                    image.src=element.src;
+                    imageCacheRef.current[element.src]=image;
+                }
+
+                if(image.complete && image.naturalWidth){
+                    ctx.drawImage(image,element.x,element.y,element.width,element.height);
+                }
+            }
         });
 
         //For preview
@@ -171,12 +212,19 @@ const Board=()=>{
                 roughCanvas.draw(generator.circle(preview.cx,preview.cy,preview.r,previewOpts));
             }
         }
-    },[boardElements,preview,activeTool,strokeColor,fillColor,strokeWidth]);
+    },[boardElements,preview,activeTool,strokeColor,fillColor,strokeWidth,imageVersion]);
 
     return (
         <>
             <ToolBar Download={downloadImage}/> 
             <ToolBox/>
+            {activeTool==="ai" && (
+                <AiPanel
+                    canvasRef={canvasRef}
+                    onApplyImage={addImageElement}
+                    onClose={closeAiPanel}
+                />
+            )}
             {textPoint && (
                 <TextBoxEditor
                     point={textPoint}

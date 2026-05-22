@@ -6,8 +6,10 @@
   "author": "",
   "type": "commonjs",
   "scripts": {
+    "build": "node scripts/buildFrontend.js",
+    "dev": "node scripts/startFrontend.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "parcel index.html"
+    "start": "node scripts/startFrontend.js"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",

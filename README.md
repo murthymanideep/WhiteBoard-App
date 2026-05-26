@@ -1,109 +1,251 @@
 # WhiteBoard App
 
-A lightweight browser-based whiteboard built with React, Redux Toolkit, Tailwind CSS, Parcel, and Rough.js. It lets users draw freehand strokes, create basic shapes, erase elements, undo and redo changes, persist the board locally, and export the canvas as a PNG image.
+A simple whiteboard app made using React, Redux Toolkit, Tailwind CSS, Parcel, Rough.js, and Express backend.  
+You can draw, add shapes and text, erase items, undo/redo actions, save board data, download PNG images, and generate AI images from your sketch using Gemini.
+
+## Screenshot
+
+![Whiteboard with Gemini AI panel](assets/images/whiteboard-ai-overview.png)
 
 ## Features
 
 - Freehand brush drawing
 - Rectangle, line, ellipse, and circle tools
-- Stroke color, fill color, and stroke width controls
-- Element eraser
-- Undo and redo history
-- Local browser persistence with `localStorage`
-- PNG export
-- Responsive full-screen canvas UI
+- Add text on the board
+- Change stroke and fill colors
+- Eraser tool
+- Undo and redo support
+- Save board data in browser using `localStorage`
+- Download board as PNG image
+- AI image generation from current sketch
+- Separate backend to keep API key safe
 
-## Tech Stack
+## AI Working
 
-- React
-- Redux Toolkit
-- React Redux
-- Tailwind CSS
-- Parcel
-- Rough.js
-- React Icons
-
-## Project Structure
+The app sends the current board sketch to the backend:
 
 ```text
-WhiteBoard-App-main/
-├── frontend/
-│   ├── src/
-│   │   ├── components/      # Board, toolbar, and toolbox UI
-│   │   ├── hooks/           # Drawing and erasing handlers
-│   │   ├── store/           # Redux store and board state slice
-│   │   └── utils/           # Colors, style helpers, and element utilities
-│   ├── index.html
-│   ├── index.css
-│   ├── package.json
-│   └── tailwind.config.js
-└── README.md
+POST /api/realistic-photo
 ```
+
+Backend sends the image to Gemini AI model.
+
+Models used:
+
+```env
+GEMINI_TEXT_MODEL=gemini-2.5-flash
+GEMINI_IMAGE_MODEL=gemini-2.5-flash-image
+```
+
+If image generation fails, backend returns the error message.
 
 ## Requirements
 
-- Node.js 18 or newer
+- Node.js 18+
 - npm
+- Gemini API key from Google AI Studio
 
-The project includes a `.nvmrc` file in `frontend/` that pins Node 20 for deployment platforms that support Node version files.
+Create `backend/.env`
 
-## Getting Started
+```env
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_IMAGE_MODEL=gemini-2.5-flash-image
+```
+
+Create `frontend/.env`
+
+```env
+AI_ENDPOINT=http://127.0.0.1:8787/api/realistic-photo
+```
+
+Change `AI_ENDPOINT` when deploying the app.
+
+## Setup
+
+Install backend packages:
+
+```bash
+cd backend
+npm install
+```
+
+Install frontend packages:
 
 ```bash
 cd frontend
 npm install
-npm run dev
 ```
 
-Parcel will print the local development URL in the terminal.
-
-## Available Scripts
-
-Run these commands from the `frontend/` directory:
+Check Gemini key:
 
 ```bash
-npm run dev
+cd backend
+npm run check-ai-key
 ```
 
-Starts the Parcel development server.
+Run backend:
+
+```bash
+cd backend
+npm start
+```
+
+Run frontend:
+
+```bash
+cd frontend
+npm start
+```
+
+Backend runs on:
+
+```text
+http://127.0.0.1:8787
+```
+
+Frontend runs on:
+
+```text
+http://127.0.0.1:1234
+```
+
+If port `1234` is busy, frontend uses another free port automatically.
+
+## Scripts
+
+### Backend
+
+Run backend server:
+
+```bash
+cd backend
+npm start
+```
+
+Check Gemini API key:
+
+```bash
+cd backend
+npm run check-ai-key
+```
+
+### Frontend
+
+Run frontend:
 
 ```bash
 npm start
 ```
 
-Starts the development server on `0.0.0.0`, which is useful in cloud IDEs and containerized environments.
+or
+
+```bash
+npm run dev
+```
+
+Build frontend:
 
 ```bash
 npm run build
 ```
 
-Creates an optimized production build in `frontend/dist`.
+Run test placeholder:
 
 ```bash
 npm test
 ```
 
-Runs the current test placeholder. Automated tests are not configured yet.
+## Project Structure
+
+```text
+WhiteBoard-App/
+├── assets/
+├── backend/
+│   ├── api/
+│   ├── scripts/
+│   ├── src/
+│   │   ├── config/
+│   │   ├── middleware/
+│   │   ├── modules/
+│   │   │   ├── ai/
+│   │   │   └── health/
+│   │   ├── routes/
+│   │   └── server.js
+│   └── package.json
+├── frontend/
+│   ├── scripts/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── store/
+│   │   └── utils/
+│   ├── package.json
+│   └── tailwind.config.js
+└── README.md
+```
 
 ## Deployment
 
-This is a static frontend app. Use these settings on most hosting providers:
+Frontend can be deployed as static files.  
+Backend is needed for AI image generation because API key should stay on server side.
 
-- Root directory: `frontend`
-- Build command: `npm run build`
-- Publish directory: `frontend/dist`
-- Node version: `20` or any Node version `>=18`
+Build frontend:
 
-For Netlify, set the publish directory to `frontend/dist` if deploying from the repository root. If the Netlify root/base directory is already `frontend`, use `dist`.
+```bash
+cd frontend
+npm run build
+```
 
-For Vercel, set the project root to `frontend`, keep the build command as `npm run build`, and use `dist` as the output directory.
+Backend environment variables:
 
-For GitHub Pages or sub-path hosting, the build script uses `--public-url ./` so generated asset links stay relative.
+```env
+NODE_ENV=production
+FRONTEND_URL=https://your-frontend-domain.com
+GEMINI_API_KEY=your_gemini_api_key
+GEMINI_IMAGE_MODEL=gemini-2.5-flash-image
+```
 
-Production source maps are disabled in the build script to keep deployment artifacts smaller.
+Run backend:
+
+```bash
+cd backend
+npm ci
+npm start
+```
+
+Backend routes:
+
+```text
+GET  /health
+POST /api/realistic-photo
+```
+
+Build frontend for production:
+
+```bash
+cd frontend
+npm ci
+npm run build
+```
+
+For Vercel backend deployment:
+
+```text
+api/realistic-photo.js
+```
+
+Frontend production env:
+
+```env
+AI_ENDPOINT=https://your-backend-domain.vercel.app/api/realistic-photo
+```
+
+Do not put `GEMINI_API_KEY` in frontend code.
 
 ## Notes
 
-- Drawings are stored in the browser using `localStorage`; clearing site data will remove saved drawings.
-- The app has no backend dependency, so deployment only needs the static files generated by Parcel.
-- The exported image is downloaded as `drawing.png`.
+- Board data is saved in browser `localStorage`
+- Clearing browser data removes saved drawings
+- Board export downloads as `drawing.png`
+- AI images download as `ai-image.svg` or `ai-image.png`
+- AI tries to keep sketch layout similar to original drawing

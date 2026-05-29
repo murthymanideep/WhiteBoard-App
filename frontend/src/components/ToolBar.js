@@ -1,6 +1,6 @@
 import { RiRectangleLine } from "react-icons/ri";
 import { FaSlash } from "react-icons/fa";
-import { LuEraser } from "react-icons/lu";
+import { LuEraser,LuMousePointer2 } from "react-icons/lu";
 import { IoEllipseOutline,IoText } from "react-icons/io5";
 import { FaPaintBrush } from "react-icons/fa";
 import { LuUndo,LuRedo  } from "react-icons/lu";
@@ -50,6 +50,10 @@ const ToolBar=({Download})=>{
             <button className={getToolButtonClass(activeTool,"eraser")} onClick={()=>changeActiveToolItem("eraser")}>
                 <LuEraser size={18}/>
                 <span className={toolLabel}>Eraser</span>
+            </button>
+            <button className={getToolButtonClass(activeTool,"select")} onClick={()=>changeActiveToolItem("select")}>
+                <LuMousePointer2 size={18}/>
+                <span className={toolLabel}>Drag</span>
             </button>
             <button onClick={()=>dispatch(undo())}>
                 <LuUndo size={18}/>

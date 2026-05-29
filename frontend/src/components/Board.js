@@ -5,15 +5,36 @@ import useBoardMouseHandlers from "../hooks/useBoardMouseHandlers";
 import ToolBar from "./ToolBar";
 import ToolBox from "./ToolBox";
 import { getColorValue } from "../utils/colorClassMap";
-import { addBoardElement,setActiveToolItem } from "../store/boardSlice";
+import {
+    addBoardElement,
+    addBoardElements,
+    batchRemoveBoardElements,
+    redo,
+    setActiveToolItem,
+    undo
+} from "../store/boardSlice";
 import { drawTextElement } from "../utils/textHelpers";
 import TextBoxEditor from "./TextBoxEditor";
 import AiPanel from "./AiPanel";
+import {
+    cloneElementForCopy,
+    getSelectionBounds,
+    moveElement
+} from "../utils/selectionHelpers";
+
+const isEditableTarget=(target)=>{
+    return (
+        target?.tagName==="INPUT" ||
+        target?.tagName==="TEXTAREA" ||
+        target?.isContentEditable
+    );
+};
 
 const Board=()=>{
     const dispatch=useDispatch();
     const canvasRef=useRef(null);
     const imageCacheRef=useRef({});
+    const clipboardRef=useRef([]);
     const [textPoint,setTextPoint]=useState(null);
     const [imageVersion,setImageVersion]=useState(0);
     const boardElements=useSelector((store)=>{
@@ -22,13 +43,98 @@ const Board=()=>{
     const {activeToolItem:activeTool,strokeColor,fillColor,strokeWidth}=useSelector((store)=>{
         return store.board;
     });
-    const {preview,onMouseDown,onMouseMove,onMouseUp}=useBoardMouseHandlers();
+    const {
+        preview,
+        selectedIds,
+        selectionBox,
+        moveDelta,
+        clearSelection,
+        setSelectedIds,
+        onMouseDown,
+        onMouseMove,
+        onMouseUp
+    }=useBoardMouseHandlers();
 
     useEffect(()=>{
         if(activeTool!=="text-box"){
             setTextPoint(null);
         }
     },[activeTool]);
+
+    useEffect(()=>{
+        const handleKeyDown=(event)=>{
+            if(isEditableTarget(event.target)){
+                return;
+            }
+
+            const key=event.key.toLowerCase();
+            const hasModifier=event.ctrlKey || event.metaKey;
+
+            if(hasModifier && key==="z"){
+                event.preventDefault();
+                dispatch(event.shiftKey?redo():undo());
+                return;
+            }
+
+            if(hasModifier && key==="y"){
+                event.preventDefault();
+                dispatch(redo());
+                return;
+            }
+
+            if(hasModifier && key==="c"){
+                if(selectedIds.length===0){
+                    return;
+                }
+
+                const selectedSet=new Set(selectedIds);
+                clipboardRef.current=boardElements
+                    .filter(element=>selectedSet.has(element.id))
+                    .map(element=>JSON.parse(JSON.stringify(element)));
+                event.preventDefault();
+                return;
+            }
+
+            if(hasModifier && key==="v"){
+                if(clipboardRef.current.length===0){
+                    return;
+                }
+
+                const pastedElements=clipboardRef.current.map((element,index)=>cloneElementForCopy(element,index));
+                clipboardRef.current=pastedElements.map(element=>JSON.parse(JSON.stringify(element)));
+                dispatch(addBoardElements(pastedElements));
+                dispatch(setActiveToolItem("select"));
+                setSelectedIds(pastedElements.map(element=>element.id));
+                event.preventDefault();
+                return;
+            }
+
+            if(key==="delete" || key==="backspace"){
+                if(selectedIds.length===0){
+                    return;
+                }
+
+                dispatch(batchRemoveBoardElements(selectedIds));
+                clearSelection();
+                event.preventDefault();
+                return;
+            }
+
+            if(key==="escape"){
+                if(selectedIds.length>0 || textPoint){
+                    clearSelection();
+                    setTextPoint(null);
+                    event.preventDefault();
+                }
+            }
+        };
+
+        window.addEventListener("keydown",handleKeyDown);
+
+        return ()=>{
+            window.removeEventListener("keydown",handleKeyDown);
+        };
+    },[boardElements,clearSelection,dispatch,selectedIds,setSelectedIds,textPoint]);
 
     const downloadImage=()=>{
         const canvas=canvasRef.current;
@@ -115,9 +221,18 @@ const Board=()=>{
 
         const roughCanvas=rough.canvas(canvas);
         const generator=roughCanvas.generator;
+        const selectedIdSet=new Set(selectedIds);
+        const hasMoveDelta=moveDelta.dx!==0 || moveDelta.dy!==0;
+        const displayElements=boardElements.map((element)=>{
+            if(activeTool==="select" && hasMoveDelta && selectedIdSet.has(element.id)){
+                return moveElement(element,moveDelta.dx,moveDelta.dy);
+            }
+
+            return element;
+        });
 
         //For rendering the elements
-        boardElements.forEach((element)=>{
+        displayElements.forEach((element)=>{
             if(!element){
                 return;
             }
@@ -212,7 +327,28 @@ const Board=()=>{
                 roughCanvas.draw(generator.circle(preview.cx,preview.cy,preview.r,previewOpts));
             }
         }
-    },[boardElements,preview,activeTool,strokeColor,fillColor,strokeWidth,imageVersion]);
+
+        if(activeTool==="select"){
+            ctx.save();
+            ctx.lineWidth=1.5;
+            ctx.strokeStyle="#2563eb";
+            ctx.fillStyle="rgba(37,99,235,0.08)";
+            ctx.setLineDash([6,4]);
+
+            if(selectionBox){
+                ctx.fillRect(selectionBox.x,selectionBox.y,selectionBox.width,selectionBox.height);
+                ctx.strokeRect(selectionBox.x,selectionBox.y,selectionBox.width,selectionBox.height);
+            }
+
+            const selectedBounds=getSelectionBounds(displayElements,selectedIds);
+            if(selectedBounds){
+                ctx.fillRect(selectedBounds.x,selectedBounds.y,selectedBounds.width,selectedBounds.height);
+                ctx.strokeRect(selectedBounds.x,selectedBounds.y,selectedBounds.width,selectedBounds.height);
+            }
+
+            ctx.restore();
+        }
+    },[boardElements,preview,activeTool,strokeColor,fillColor,strokeWidth,imageVersion,selectedIds,selectionBox,moveDelta]);
 
     return (
         <>
@@ -236,7 +372,7 @@ const Board=()=>{
             )}
             <canvas
                 ref={canvasRef}
-                className={activeTool==="text-box"?"block cursor-text":"block"}
+                className={activeTool==="text-box"?"block cursor-text":activeTool==="select"?"block cursor-crosshair":"block"}
                 onClick={handleCanvasClick}
                 onMouseDown={handleMouseDown}
                 onMouseMove={onMouseMove}

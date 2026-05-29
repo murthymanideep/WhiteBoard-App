@@ -1,7 +1,16 @@
 # WhiteBoard App
 
 A simple whiteboard app made using React, Redux Toolkit, Tailwind CSS, Parcel, Rough.js, and Express backend.  
-You can draw, add shapes and text, erase items, undo/redo actions, save board data, download PNG images, and generate AI images from your sketch using Gemini.
+You can draw, add shapes and text, select parts of the canvas with the Drag tool, move selected items, copy/paste them, erase selected items, undo/redo actions, save board data, download PNG images, and generate AI images from your sketch using Gemini.
+
+The app now supports a selection workflow for editing existing board content:
+
+- Use **Drag** to draw a selection box around shapes, brush strokes, text, or generated images.
+- Drag a selected item or selected group to move it around the board.
+- Press `Ctrl+C` / `Cmd+C` to copy selected items.
+- Press `Ctrl+V` / `Cmd+V` to paste copied items with a slight offset.
+- Press `Delete` or `Backspace` to erase the current selection.
+- Press `Esc` to clear the selection.
 
 ## Screenshot
 
@@ -14,11 +23,30 @@ You can draw, add shapes and text, erase items, undo/redo actions, save board da
 - Add text on the board
 - Change stroke and fill colors
 - Eraser tool
+- Drag selection tool for selecting and moving board elements
+- Copy and paste selected elements
+- Delete or backspace to erase selected elements
 - Undo and redo support
 - Save board data in browser using `localStorage`
 - Download board as PNG image
 - AI image generation from current sketch
 - Separate backend to keep API key safe
+
+## Drag Selection Controls
+
+Choose the **Drag** tool from the toolbar to edit existing content. Click an element to select it, drag over a region to select multiple elements, then drag the selected area to move everything together.
+
+Keyboard shortcuts:
+
+```text
+Ctrl/Cmd + C  Copy selected elements
+Ctrl/Cmd + V  Paste copied elements
+Delete        Erase selected elements
+Backspace     Erase selected elements
+Esc           Clear selection
+Ctrl/Cmd + Z  Undo
+Ctrl/Cmd + Y  Redo
+```
 
 ## AI Working
 
